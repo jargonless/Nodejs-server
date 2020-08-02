@@ -1,5 +1,5 @@
 {
-    "jwtPrivateToken": "unsecurekey",
+    "jwtPrivateToken": "",
     "db": "mongodb://localhost/jargonless",
     "port": 3900,
     "requireAuth": true
