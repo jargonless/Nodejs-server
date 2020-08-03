@@ -15,6 +15,7 @@ const genreSchema = {
 const Genre = mongoose.model('Genre', genreSchema)
 
 router.get('/', async (req, res) => {
+    throw new Error('Could not get the genres')
     const genres = await Genre.find()
     res.send(genres)
 })
