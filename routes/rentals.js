@@ -1,10 +1,11 @@
 const express = require('express')
 const router = express.Router()
-const { Movie, movieSchema } = require('./movies')
-const { customerSchema, Customer } = require('./customers')
+const { Movie } = require('./movies')
+const { Customer } = require('./customers')
 const Fawn = require('fawn')
 const { Rental } = require('../models/rental')
 const mongoose = require('mongoose')
+const auth = require('../middleWare/auth')
 
 Fawn.init(mongoose);
 
