@@ -14,9 +14,6 @@ router.get('/', async (req, res) => {
 })
 
 router.post('/', async (req, res) => {
-  const { error } = validate(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
-
   const customer = await Customer.findById(req.body.customerId);
   if (!customer) return res.status(400).send('Invalid customer.');
 
@@ -27,12 +24,14 @@ router.post('/', async (req, res) => {
 
   let rental = new Rental({
     customer: {
-      type: customerSchema,
-      required: true
+      _id: customer._id,
+      name: customer.name,
+      phone: customer.phone
     },
     movie: {
-      type: movieSchema,
-      required: true
+      _id: movie._id,
+      title: movie.title,
+      dailyRentalRate: movie.dailyRentalRate
     }
   })
 
@@ -51,7 +50,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', auth, async (req, res) => {
   const rental = await Rental.findById(req.params.id);
 
   if (!rental) return res.status(404).send('The rental with the given ID was not found.');
