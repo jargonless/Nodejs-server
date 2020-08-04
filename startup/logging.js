@@ -3,20 +3,17 @@ require('express-async-errors')
 
 const logger = winston.createLogger({
     transports: [
-        new winston.transports.Console(),
-        new winston.transports.File({ filename: 'logfile.log' })
+        new winston.transports.Console()
     ]
 })
 
 module.exports = function () {
     winston.exceptions.handle(
-        new winston.transports.Console({ colorize: true, prettyPrint: true }),
-        new winston.transports.File({ filename: 'uncaugthtExceptions.log' }))
+        new winston.transports.Console({ colorize: true, prettyPrint: true }))
 
     process.on('unhandledRejection', ex => {
         throw ex
     })
-
 }
 
 module.exports.logger = logger
