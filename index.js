@@ -2,12 +2,12 @@ const express = require('express')
 const app = express()
 const config = require('config')
 
+require('./startup/cors')(app)
 require('./startup/config')()
 require('./startup/db')()
 require('./startup/logging')()
 require('./startup/routes')(app)
 require('./startup/prod')(app)
-require('./startup/cors')(app)
 
 console.log(`NODE_ENV: ${app.get('env')}`)
 
