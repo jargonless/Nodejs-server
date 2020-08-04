@@ -56,36 +56,31 @@ router.post('/', async (req, res) => {
         },
         numberInStock: req.body.numberInStock,
         dailyRentalRate: req.body.dailyRentalRate,
-        publishDate: req.body.publishDate,
-        liked: req.body.liked
+        publishDate: moment().toJSON()
     })
-    newMovie
-        .save()
-        .then(r => res.send(`Movie saved to database with success`))
-        .catch(err => {
-            console.error(err)
-            res.status(400).send('Problem with movie format')
-        })
+
+    await movie.save();
+    res.send(movie);
 })
 
 router.put('/:id', async (req, res) => {
     const genre = await Genre.findById(req.body.genreID)
     if (!genre) return res.status(400).send('Could not find genreID in the database')
 
-    let movie = await Movie.findByIdAndUpdate(req.params.id,
+    const movie = await Movie.findByIdAndUpdate(
+        req.params.id,
         {
-            title: req.body.title,
-            genre: {
-                _id: genre._id,
-                name: genre.name
-            },
-            numberInStock: req.body.numberInStock,
-            dailyRentalRate: req.body.dailyRentalRate,
-            publishDate: req.body.publishDate,
-            liked: req.body.liked
+          title: req.body.title,
+          genre: {
+            _id: genre._id,
+            name: genre.name
+          },
+          numberInStock: req.body.numberInStock,
+          dailyRentalRate: req.body.dailyRentalRate
+        },
+        { new: true }
+      )
 
-        })
-        
     if (!movie) return res.status(400).send('Movie not found')
     res.send('movie updated')
 })
