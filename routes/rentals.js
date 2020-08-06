@@ -6,6 +6,7 @@ const Fawn = require('fawn')
 const { Rental } = require('../models/rental')
 const mongoose = require('mongoose')
 const auth = require('../middleWare/auth')
+mongoose.set('useFindAndModify', false)
 
 Fawn.init(mongoose);
 
@@ -39,7 +40,7 @@ router.post('/', async (req, res) => {
   try {
     new Fawn.Task()
       .save('rentals', rental)
-      .update('movies', { _id: movie._id }, {
+      .updateOne('movies', { _id: movie._id }, {
         $inc: { numberInStock: -1 }
       })
       .run();

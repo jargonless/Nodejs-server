@@ -18,7 +18,7 @@ router.post('/', auth, async (req, res) => {
         rental.rentalFee = moment().diff(rental.dateOut, 'days') * rental.movie.dailyRentalRate
     await rental.save()
 
-    await Movie.update({ _id: rental.movie._id }, { $inc: { numberInStock: 1 } })
+    await Movie.updateOne({ _id: rental.movie._id }, { $inc: { numberInStock: 1 } })
     res.status(200).send(rental)
 })
 

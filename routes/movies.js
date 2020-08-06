@@ -1,7 +1,10 @@
 const express = require('express')
 const router = express.Router()
 const mongoose = require('mongoose')
+const auth = require('../middleWare/auth')
 const { genreSchema, Genre } = require('./genres')
+const moment = require('moment')
+mongoose.set('useFindAndModify', false)
 
 const movieSchema = {
     title: {
@@ -39,13 +42,14 @@ const movieSchema = {
 
 const Movie = mongoose.model('Movie', movieSchema)
 
-router.get('/', (req, res) => {
-    Movie.find().then(r => res.send(r)).catch(err => console.error(err))
+router.get('/', async (req, res) => {
+    const movies = await Movie.find()
+    res.send(movies)
 })
 
-router.post('/', async (req, res) => {
+router.post('/', auth, async (req, res) => {
 
-    const genre = await Genre.findById(req.body.genreID)
+    const genre = await Genre.findById(req.body.genre._id)
     if (!genre) return res.status(400).send('Could not find genreID in the database')
 
     let newMovie = new Movie({
@@ -59,12 +63,12 @@ router.post('/', async (req, res) => {
         publishDate: moment().toJSON()
     })
 
-    await movie.save();
-    res.send(movie);
+    await newMovie.save();
+    res.send(newMovie);
 })
 
-router.put('/:id', async (req, res) => {
-    const genre = await Genre.findById(req.body.genreID)
+router.put('/:id', auth, async (req, res) => {
+    const genre = await Genre.findById(req.body.genre._id)
     if (!genre) return res.status(400).send('Could not find genreID in the database')
 
     const movie = await Movie.findByIdAndUpdate(
@@ -82,16 +86,17 @@ router.put('/:id', async (req, res) => {
       )
 
     if (!movie) return res.status(400).send('Movie not found')
+    await movie.save()
     res.send('movie updated')
 })
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', auth, async (req, res) => {
     let movie = await Movie.findByIdAndDelete(req.params.id)
     if (!movie) return res.status(400).send('Movie not found')
     res.send('movie deleted')
 })
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', auth, async (req, res) => {
     let movie = await Movie.findById(req.params.id)
     if (!movie) return res.status(400).send('Movie not found')
     res.send(movie)
