@@ -4,6 +4,7 @@ const mongoose = require('mongoose')
 const auth = require('../middleWare/auth')
 const { genreSchema, Genre } = require('./genres')
 const moment = require('moment')
+const admin = require('../middleWare/admin')
 mongoose.set('useFindAndModify', false)
 
 const movieSchema = {
@@ -22,13 +23,16 @@ const movieSchema = {
         type: Number,
         required: true,
         min: 0,
-        max: 100
+        max: 1000
     },
     dailyRentalRate: {
         type: Number,
         required: true,
         min: 0,
         max: 10
+    },
+    description: {
+
     },
     publishDate: {
         type: Date,
@@ -47,7 +51,7 @@ router.get('/', async (req, res) => {
     res.send(movies)
 })
 
-router.post('/', auth, async (req, res) => {
+router.post('/', [auth, admin], async (req, res) => {
 
     const genre = await Genre.findById(req.body.genre._id)
     if (!genre) return res.status(400).send('Could not find genreID in the database')
@@ -67,7 +71,7 @@ router.post('/', auth, async (req, res) => {
     res.send(newMovie);
 })
 
-router.put('/:id', auth, async (req, res) => {
+router.put('/:id', [auth, admin], async (req, res) => {
     const genre = await Genre.findById(req.body.genre._id)
     if (!genre) return res.status(400).send('Could not find genreID in the database')
 
@@ -90,13 +94,13 @@ router.put('/:id', auth, async (req, res) => {
     res.send('movie updated')
 })
 
-router.delete('/:id', auth, async (req, res) => {
+router.delete('/:id', [auth, admin], async (req, res) => {
     let movie = await Movie.findByIdAndDelete(req.params.id)
     if (!movie) return res.status(400).send('Movie not found')
     res.send('movie deleted')
 })
 
-router.get('/:id', auth, async (req, res) => {
+router.get('/:id', async (req, res) => {
     let movie = await Movie.findById(req.params.id)
     if (!movie) return res.status(400).send('Movie not found')
     res.send(movie)

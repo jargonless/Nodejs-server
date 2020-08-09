@@ -1,63 +1,58 @@
 const express = require('express')
 const router = express.Router()
 const { Movie } = require('./movies')
-const { Customer } = require('./customers')
-const Fawn = require('fawn')
+const { User } = require('../models/user')
 const { Rental } = require('../models/rental')
 const mongoose = require('mongoose')
 const auth = require('../middleWare/auth')
 mongoose.set('useFindAndModify', false)
 
-Fawn.init(mongoose);
-
-router.get('/', async (req, res) => {
-  const rentals = await Rental.find().sort('-dateOut');
-  res.send(rentals);
+router.get('/u/:id', async (req, res) => {
+  const rentals = await Rental.find({'user': req.params.id}).sort('-dateOut')
+  res.send(rentals)
 })
 
 router.post('/', async (req, res) => {
-  const customer = await Customer.findById(req.body.customerId);
-  if (!customer) return res.status(400).send('Invalid customer.');
+  const user = await User.findById(req.body.userId)
+  if (!user) return res.status(400).send('Invalid user.')
 
-  const movie = await Movie.findById(req.body.movieId);
-  if (!movie) return res.status(400).send('Invalid movie.');
+  const movie = await Movie.findById(req.body.movieId)
+  if (!movie) return res.status(400).send('Invalid movie.')
 
-  if (movie.numberInStock === 0) return res.status(400).send('Movie not in stock.');
+  if (movie.numberInStock === 0) return res.status(400).send('Movie not in stock.')
 
   let rental = new Rental({
-    customer: {
-      _id: customer._id,
-      name: customer.name,
-      phone: customer.phone
+    user: {
+      _id: user._id
     },
     movie: {
       _id: movie._id,
       title: movie.title,
-      dailyRentalRate: movie.dailyRentalRate
+      genre: {
+        _id: movie.genre._id,
+        name: movie.genre.name
+      }
     }
   })
 
-  try {
-    new Fawn.Task()
-      .save('rentals', rental)
-      .updateOne('movies', { _id: movie._id }, {
-        $inc: { numberInStock: -1 }
-      })
-      .run();
+  await rental.save()
+  await Movie.findOneAndUpdate({ _id: movie._id }, { $inc: { numberInStock: -1 } })
 
-    res.send(rental);
-  }
-  catch (ex) {
-    res.status(500).send('Something failed.');
-  }
-});
+  res.send('Rental saved with success')
+})
+
+router.delete('/:id', async(req, res) => {
+  const rental = await Rental.findByIdAndDelete(req.params.id)
+  if(!rental) return res.status(404).send('The rental with the given ID was not found.')
+
+  res.status(200).send('Rental deleted with success')
+})
 
 router.get('/:id', auth, async (req, res) => {
-  const rental = await Rental.findById(req.params.id);
+  const rental = await Rental.findById(req.params.id)
+  if (!rental) return res.status(404).send('The rental with the given ID was not found.')
 
-  if (!rental) return res.status(404).send('The rental with the given ID was not found.');
-
-  res.send(rental);
+  res.send(rental)
 })
 
 module.exports = router
