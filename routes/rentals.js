@@ -45,13 +45,17 @@ router.delete('/:id', async(req, res) => {
   const rental = await Rental.findByIdAndDelete(req.params.id)
   if(!rental) return res.status(404).send('The rental with the given ID was not found.')
 
+  const movie = await Movie.findById(rental.movie._id)
+  movie.numberInStock += 1
+  await movie.save()
+  
   res.status(200).send('Rental deleted with success')
 })
 
 router.get('/:id', auth, async (req, res) => {
   const rental = await Rental.findById(req.params.id)
   if (!rental) return res.status(404).send('The rental with the given ID was not found.')
-
+  
   res.send(rental)
 })
 

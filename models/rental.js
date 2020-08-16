@@ -24,6 +24,9 @@ const rentalSchema = {
         required: true,
         default: Date.now
     },
+    dateLimit: {
+        
+    },
     dateReturned: {
         type: Date
     },

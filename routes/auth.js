@@ -6,9 +6,6 @@ const _ = require('lodash')
 const express = require('express')
 const router = express.Router()
 
-// router.get('/', async (req, res) => {
-// })
-
 router.post('/', async (req, res) => {
 
     let user = await User.findOne({ email: req.body.email })
