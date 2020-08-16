@@ -1,4 +1,4 @@
 {
-    "jwtPrivateToken": "jargonless_jwtPrivateToken",
-    "db": "jargonless_db"
+    "jwtPrivateToken": "production_jwtPrivateToken",
+    "db": "production_db"
 } 
