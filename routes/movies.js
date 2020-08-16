@@ -31,9 +31,6 @@ const movieSchema = {
         min: 0,
         max: 10
     },
-    description: {
-
-    },
     publishDate: {
         type: Date,
         default: Date.now
@@ -48,10 +45,12 @@ const Movie = mongoose.model('Movie', movieSchema)
 
 router.get('/', async (req, res) => {
     const movies = await Movie.find()
-    res.send(movies)
+    .select("-__v")
+    .sort("name");
+  res.send(movies)
 })
 
-router.post('/', [auth, admin], async (req, res) => {
+router.post('/', [auth], async (req, res) => {
 
     const genre = await Genre.findById(req.body.genre._id)
     if (!genre) return res.status(400).send('Could not find genreID in the database')
@@ -71,7 +70,7 @@ router.post('/', [auth, admin], async (req, res) => {
     res.send(newMovie);
 })
 
-router.put('/:id', [auth, admin], async (req, res) => {
+router.put('/:id', [auth], async (req, res) => {
     const genre = await Genre.findById(req.body.genre._id)
     if (!genre) return res.status(400).send('Could not find genreID in the database')
 
@@ -94,7 +93,7 @@ router.put('/:id', [auth, admin], async (req, res) => {
     res.send('movie updated')
 })
 
-router.delete('/:id', [auth, admin], async (req, res) => {
+router.delete('/:id', [auth], async (req, res) => {
     let movie = await Movie.findByIdAndDelete(req.params.id)
     if (!movie) return res.status(400).send('Movie not found')
     res.send('movie deleted')

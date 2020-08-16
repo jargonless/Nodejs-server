@@ -8,7 +8,7 @@ const auth = require('../middleWare/auth')
 mongoose.set('useFindAndModify', false)
 
 router.get('/u/:id', async (req, res) => {
-  const rentals = await Rental.find({'user': req.params.id}).sort('-dateOut')
+  const rentals = await Rental.find({ 'user': req.params.id }).sort('-dateOut')
   res.send(rentals)
 })
 
@@ -41,21 +41,21 @@ router.post('/', async (req, res) => {
   res.send('Rental saved with success')
 })
 
-router.delete('/:id', async(req, res) => {
+router.delete('/:id', async (req, res) => {
   const rental = await Rental.findByIdAndDelete(req.params.id)
-  if(!rental) return res.status(404).send('The rental with the given ID was not found.')
+  if (!rental) return res.status(404).send('The rental with the given ID was not found.')
 
   const movie = await Movie.findById(rental.movie._id)
   movie.numberInStock += 1
   await movie.save()
-  
+
   res.status(200).send('Rental deleted with success')
 })
 
 router.get('/:id', auth, async (req, res) => {
   const rental = await Rental.findById(req.params.id)
   if (!rental) return res.status(404).send('The rental with the given ID was not found.')
-  
+
   res.send(rental)
 })
 

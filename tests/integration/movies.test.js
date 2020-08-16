@@ -155,19 +155,19 @@ describe('api/movies', () => {
     })
 
     describe('GET /:id', () => {
-        const execIdGet = function (movieId) {
+        const execGetId = function (movieId) {
             return request(server)
                 .get('/api/movies/' + movieId)
                 .set('x-auth-token', token)
         }
 
         it('should return 400 if movie with given id cannot be found', async () => {
-            const res = await execIdGet(randomId)
+            const res = await execGetId(randomId)
             expect(res.status).toBe(400)
         })
 
         it('should delete movie from database', async () => {
-            const res = await execIdGet(movieId)
+            const res = await execGetId(movieId)
 
             expect(res.body).toHaveProperty('title', 'movie1')
             expect(res.body).toHaveProperty('numberInStock', 5)

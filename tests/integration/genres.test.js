@@ -11,19 +11,12 @@ describe('/api/genres', () => {
     })
     //close the server and reload before each run, because at first run the server will listen to port 3000, at the second run, test code will load the server again. We will get an exception because a server is already listening to port 3000
     afterEach(async () => {
-        await Genre.deleteMany({})
         await server.close()
     })
 
     describe('GET /', () => {
         it('should return all genres', async () => {
-            try {
-                await Genre.collection.insertMany([{ name: 'genre1' }, { name: 'genre2' }])
-            }
-            catch (err) {
-                console.error(err)
-            }
-
+            await Genre.collection.insertMany([{ name: 'genre1' }, { name: 'genre2' }])
             //this can send a request
             const res = await request(server).get('/api/genres')
             expect(res.status).toBe(200)
@@ -32,11 +25,21 @@ describe('/api/genres', () => {
             expect(res.body.some(g => g.name === 'genre2')).toBeTruthy()
             expect(res.body.length).toBe(2)
 
+            await Genre.deleteMany({})
+            afterEach(async () => {
+                
+                await server.close()
+            })
         })
     })
 
     describe('GET /:id', () => {
 
+        it('should return 404 if invalid id is passed', async () => {
+            const res = await request(server).get('/api/genres/1')
+            expect(res.status).toBe(404)
+        })
+        
         it('should return a genre that has the given valid id', async () => {
             const genre = new Genre({ name: 'genre1' })
             await genre.save()
@@ -45,11 +48,6 @@ describe('/api/genres', () => {
 
             expect(res.status).toBe(200)
             expect(res.body).toHaveProperty('name', genre.name)
-        })
-
-        it('should return 404 if invalid id is passed', async () => {
-            const res = await request(server).get('/api/genres/1')
-            expect(res.status).toBe(404)
         })
     })
 
@@ -107,8 +105,6 @@ describe('/api/genres', () => {
         })
 
         it('should update genre if input is valid', async () => {
-            let genre = new Genre({ name: 'genre1' })
-            await genre.save()
             const res = await exec(token, genre._id)
 
             genre = await Genre.findById(genre._id)
@@ -129,7 +125,7 @@ describe('/api/genres', () => {
 
         beforeEach(async () => {
             //create genre and assign token
-            token = new User({ isAdmin: true }).generateAuthToken()
+            token = new User().generateAuthToken()
             genre = new Genre({ name: 'genre1' })
             await genre.save()
             genreId = genre._id
@@ -140,21 +136,13 @@ describe('/api/genres', () => {
             expect(res.status).toBe(401)
         })
 
-        it('should return 403 if the user is not an admin', async () => {
-            token = new User({ isAdmin: false }).generateAuthToken();
-            const res = await exec(token, genreId);
-            expect(res.status).toBe(403);
-        })
-
         it('should return 404 if genre is not found', async () => {
             const res = await exec(token, mongoose.Types.ObjectId().toHexString())
             expect(res.status).toBe(404)
         })
 
         it('should update genre if input is valid', async () => {
-            let genre = new Genre({ name: 'genre1' })
-            await genre.save()
-            const res = await exec(token, genreId)
+            await exec(token, genreId)
 
             genre = await Genre.findById(genreId)
             expect(genre).toBeNull()
