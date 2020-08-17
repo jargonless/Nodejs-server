@@ -11,25 +11,23 @@ describe('/api/genres', () => {
     })
     //close the server and reload before each run, because at first run the server will listen to port 3000, at the second run, test code will load the server again. We will get an exception because a server is already listening to port 3000
     afterEach(async () => {
+        await Genre.deleteMany({})
         await server.close()
     })
 
     describe('GET /', () => {
         it('should return all genres', async () => {
-            await Genre.collection.insertMany([{ name: 'genre1' }, { name: 'genre2' }])
-            //this can send a request
-            const res = await request(server).get('/api/genres')
-            expect(res.status).toBe(200)
+            const genres = [
+                { name: 'genre1' },
+                { name: 'genre2' },
+              ]
+            await Genre.collection.insertMany(genres)
 
+            const res = await request(server).get('/api/genres')
+
+            expect(res.status).toBe(200)
             expect(res.body.some(g => g.name === 'genre1')).toBeTruthy()
             expect(res.body.some(g => g.name === 'genre2')).toBeTruthy()
-            expect(res.body.length).toBe(2)
-
-            await Genre.deleteMany({})
-            afterEach(async () => {
-                
-                await server.close()
-            })
         })
     })
 
@@ -52,7 +50,7 @@ describe('/api/genres', () => {
     })
 
     describe('POST /', () => {
-
+        
         const exec = function (token) {
             return request(server)
                 .post('/api/genres')
@@ -91,7 +89,6 @@ describe('/api/genres', () => {
             genre = new Genre({ name: 'genre1' })
             await genre.save()
             genreId = genre._id
-
         })
 
         it('should return 401 if client is not logged in', async () => {

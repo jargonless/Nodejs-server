@@ -5,22 +5,23 @@ const { Genre } = require('../../routes/genres')
 const { User } = require('../../models/user')
 
 describe('api/movies', () => {
-    let server, movieId, genreId, movie, genre, token, randomId
+    let server, movieId, genreId, movie, genre, token, invalidId
 
     beforeEach(async () => {
         server = require('../../index')
+
         token = new User().generateAuthToken()
         movieId = mongoose.Types.ObjectId().toHexString()
         genreId = mongoose.Types.ObjectId().toHexString()
-        randomId = mongoose.Types.ObjectId().toHexString()
+        invalidId = mongoose.Types.ObjectId().toHexString()
 
-        genre = await new Genre({
+        genre = new Genre({
             _id: genreId,
             name: 'Action'
         })
         await genre.save()
 
-        movie = await new Movie({
+        movie = new Movie({
             _id: movieId,
             title: 'movie1',
             genre: {
@@ -30,7 +31,6 @@ describe('api/movies', () => {
             numberInStock: 5,
             dailyRentalRate: 5
         })
-
         await movie.save()
     })
 
@@ -43,20 +43,20 @@ describe('api/movies', () => {
     describe('GET /', () => {
         it('should return all movies', async () => {
             const res = await request(server).get('/api/movies')
+
             expect(res.body.some(g => g.title === 'movie1')).toBeTruthy()
             expect(res.body.some(g => g.numberInStock === 5)).toBeTruthy()
             expect(res.body.some(g => g.dailyRentalRate === 5)).toBeTruthy()
             expect(res.body.some(g => g.genre.name === 'Action')).toBeTruthy()
-            expect(res.body.length).toBe(1)
+
         })
     })
 
     describe('POST /', () => {
-        const newMovieId = mongoose.Types.ObjectId().toHexString()
-        const createMovie = function () {
+        
+        const createMovie = function (genreId) {
             return new Movie({
-                _id: newMovieId,
-                title: 'movie2',
+                title: 'Only One',
                 genre: {
                     _id: genreId,
                     name: 'Action'
@@ -65,7 +65,8 @@ describe('api/movies', () => {
                 dailyRentalRate: 6
             })
         }
-        const exec = function (movie) {
+
+        const execPost = function (movie) {
             return request(server)
                 .post('/api/movies')
                 .set('x-auth-token', token)
@@ -73,21 +74,20 @@ describe('api/movies', () => {
         }
 
         it('should return 400 if genreId cannot be found', async () => {
-            const newMovie = await createMovie()
-            newMovie.genre._id = randomId
-            const res = await exec(newMovie)
+            let newMovie = createMovie(invalidId)
+            const res = await execPost(newMovie)
 
             expect(res.status).toBe(400)
         })
 
         it('should add movie into database', async () => {
-            const newMovie = await createMovie()
-            await newMovie.save()
-            await exec(newMovie)
+            let newMovie = createMovie(genreId)
+            let res = await execPost(newMovie)
+            newMovie = res.body
 
-            const oneMovie = await Movie.findById(newMovieId)
+            const oneMovie = await Movie.findOne({'title': 'Only One'})
 
-            expect(oneMovie).toHaveProperty('title', 'movie2')
+            expect(oneMovie).toHaveProperty('title', 'Only One')
             expect(oneMovie).toHaveProperty('numberInStock', 6)
             expect(oneMovie).toHaveProperty('dailyRentalRate', 6)
             expect(oneMovie).toHaveProperty('genre.name', 'Action')
@@ -105,7 +105,7 @@ describe('api/movies', () => {
         it('should return 400 if genreId cannot be found', async () => {
             let newMovie = movie
             newMovie.genre = {
-                _id: randomId,
+                _id: invalidId,
                 name: 'genreX'
             }
 
@@ -116,11 +116,10 @@ describe('api/movies', () => {
 
         it('should update the movie in the database', async () => {
             let newMovie = movie
-            newMovie.set({
-                title: 'Terminator',
-                numberInStock: 16,
-                dailyRentalRate: 10
-            })
+            newMovie.title = 'Terminator'
+            newMovie.numberInStock = 16
+            newMovie.dailyRentalRate = 10
+
             await execPut(movieId, newMovie)
             const updatedMovie = await Movie.findById(movieId)
 
@@ -130,7 +129,7 @@ describe('api/movies', () => {
         })
 
         it('should return code 400 if movie with given id cannot be found', async () => {
-            const res = await execPut(randomId, movie)
+            const res = await execPut(invalidId, movie)
             expect(res.status).toBe(400)
         })
     })
@@ -143,7 +142,7 @@ describe('api/movies', () => {
         }
 
         it('should return 400 if movie with given id cannot be found', async () => {
-            const res = await execDelete(randomId)
+            const res = await execDelete(invalidId)
             expect(res.status).toBe(400)
         })
 
@@ -162,7 +161,7 @@ describe('api/movies', () => {
         }
 
         it('should return 400 if movie with given id cannot be found', async () => {
-            const res = await execGetId(randomId)
+            const res = await execGetId(invalidId)
             expect(res.status).toBe(400)
         })
 

@@ -50,7 +50,7 @@ router.get('/', async (req, res) => {
   res.send(movies)
 })
 
-router.post('/', [auth], async (req, res) => {
+router.post('/', auth, async (req, res) => {
 
     const genre = await Genre.findById(req.body.genre._id)
     if (!genre) return res.status(400).send('Could not find genreID in the database')
@@ -65,12 +65,12 @@ router.post('/', [auth], async (req, res) => {
         dailyRentalRate: req.body.dailyRentalRate,
         publishDate: moment().toJSON()
     })
-
+    
     await newMovie.save();
     res.send(newMovie);
 })
 
-router.put('/:id', [auth], async (req, res) => {
+router.put('/:id', auth, async (req, res) => {
     const genre = await Genre.findById(req.body.genre._id)
     if (!genre) return res.status(400).send('Could not find genreID in the database')
 
@@ -93,7 +93,7 @@ router.put('/:id', [auth], async (req, res) => {
     res.send('movie updated')
 })
 
-router.delete('/:id', [auth], async (req, res) => {
+router.delete('/:id', auth, async (req, res) => {
     let movie = await Movie.findByIdAndDelete(req.params.id)
     if (!movie) return res.status(400).send('Movie not found')
     res.send('movie deleted')
