@@ -1,7 +1,8 @@
 {
-  "name": "express-demo",
+  "author":"Francis Liu",
+  "name": "secure-crag-00017",
   "version": "1.0.0",
-  "description": "",
+  "description": "A Node.js server as backend of React App that is used as a mock movie rental service",
   "main": "index.js",
   "jest": {
     "testEnvironment": "node"
@@ -14,7 +15,6 @@
     "node": "10.19.0"
   },
   "keywords": [],
-  "author": "",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.0.0",
