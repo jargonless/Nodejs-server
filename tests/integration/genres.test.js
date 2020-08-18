@@ -6,10 +6,11 @@ const mongoose = require('mongoose')
 
 describe('/api/genres', () => {
     let server
+    
     beforeEach(async () => {
         server = require('../../index')
     })
-    //close the server and reload before each run, because at first run the server will listen to port 3000, at the second run, test code will load the server again. We will get an exception because a server is already listening to port 3000
+
     afterEach(async () => {
         await Genre.deleteMany({})
         await server.close()

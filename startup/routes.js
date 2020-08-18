@@ -15,7 +15,5 @@ module.exports = function (app) {
     app.use('/api/users', userRouter)
     app.use('/api/auth', authRouter)
     app.use('/api/returns', returnRouter)
-
-    //the following error handler is registered after all the router middle ware functions, so we can access it using the "next" key word 
     app.use(errorHandle)
 }

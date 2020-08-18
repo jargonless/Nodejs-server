@@ -7,12 +7,12 @@ const mongoose = require('mongoose')
 const auth = require('../middleWare/auth')
 mongoose.set('useFindAndModify', false)
 
-router.get('/u/:id', async (req, res) => {
+router.get('/u/:id', auth, async (req, res) => {
   const rentals = await Rental.find({ 'user': req.params.id }).sort('-dateOut')
   res.send(rentals)
 })
 
-router.post('/', async (req, res) => {
+router.post('/', auth, async (req, res) => {
   const user = await User.findById(req.body.userId)
   if (!user) return res.status(400).send('Invalid user.')
 
@@ -21,7 +21,6 @@ router.post('/', async (req, res) => {
 
   if (movie.numberInStock === 0) return res.status(400).send('Movie not in stock.')
 
-  console.log('RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR')
   let rental = new Rental({
     user: {
       _id: user._id
@@ -43,7 +42,7 @@ router.post('/', async (req, res) => {
   res.send('Rental saved with success')
 })
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', auth, async (req, res) => {
   const rental = await Rental.findByIdAndDelete(req.params.id)
   if (!rental) return res.status(404).send('The rental with the given ID was not found.')
 

@@ -11,7 +11,6 @@ router.post('/', async (req, res) => {
     let user = await User.findOne({ email: req.body.email })
     if (!user) return res.status(400).send('Invalid email or password')
 
-    //should never hard code this signature in source code
     const token = jwt.sign({_id: user._id}, config.get('jwtPrivateToken'))
 
     bcrypt

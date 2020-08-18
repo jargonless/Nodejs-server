@@ -1,6 +1,6 @@
 {
     "jwtPrivateToken": "",
-    "db": "mongodb://localhost/jargonless",
+    "db": "mongodb://localhost/MockMovieRental",
     "port": 3900,
-    "requireAuth": false
+    "requireAuth": true
 }

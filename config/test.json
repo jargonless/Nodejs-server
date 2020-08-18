@@ -1,4 +1,4 @@
 {
     "jwtPrivateToken": "1234",
-    "db": "mongodb://localhost/jargonless_tests"
+    "db": "mongodb://localhost/MockMovieRental_tests"
 }
