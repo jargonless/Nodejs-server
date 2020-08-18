@@ -1,5 +1,4 @@
 {
     "jwtPrivateToken": "production_jwtPrivateToken",
-    "db": "production_db",
-    "requireAuth": "requireAuth"
+    "db": "production_db"
 } 

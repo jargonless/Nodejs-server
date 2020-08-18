@@ -21,6 +21,7 @@ router.post('/', async (req, res) => {
 
   if (movie.numberInStock === 0) return res.status(400).send('Movie not in stock.')
 
+  console.log('RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR')
   let rental = new Rental({
     user: {
       _id: user._id
@@ -31,7 +32,8 @@ router.post('/', async (req, res) => {
       genre: {
         _id: movie.genre._id,
         name: movie.genre.name
-      }
+      },
+      dailyRentalRate: movie.dailyRentalRate
     }
   })
 
